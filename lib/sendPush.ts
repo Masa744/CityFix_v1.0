@@ -1,4 +1,4 @@
-xport async function sendPushNotification(token: string, message: string) {
+export async function sendPushNotification(token: string, message: string) {
 await fetch("https://exp.host/--/api/v2/push/send", {
 method: "POST",
 headers: {
