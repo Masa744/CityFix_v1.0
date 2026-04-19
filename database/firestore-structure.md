@@ -43,7 +43,8 @@ Stores all community issue reports.
 ## 📌 Sample User Document
 
 {
-"uid": "user123",
+"uid": 
+"user123",
 "name": "John Doe",
 "email": "john@example.com",
 "role": "user",
