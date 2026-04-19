@@ -56,24 +56,26 @@ Stores all community issue reports.
 
 ## 📌 Sample Post Document
 
+```json
 {
 "title": "Broken streetlight",
-"description": "Streetlight not working on Main Street",
+"description": "Streetlight not working on Main Street causing visibility issues at night.",
 "location": {
 "city": "New York",
 "area": "Manhattan",
 "county": "NY"
 },
 "userId": "user123",
+"image": "https://example.com/image.jpg",
 "likes": [],
 "comments": [
 {
 "user": "jane@example.com",
-"text": "I saw this too"
+"text": "I noticed this as well, needs fixing soon."
 }
 ],
-
-
 "status": "open",
 "createdAt": "2026-01-01"
+}
+```
 
