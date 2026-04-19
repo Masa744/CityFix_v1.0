@@ -26,6 +26,7 @@ Overall, CityFix enhances civic engagement by giving users an easy way to report
 
 ### Installation
 ```bash
+
 git clone https://github.com/TechWithMasa/CityFix_v1.0.git
 cd CityFix_v1.0
 npm install
@@ -117,3 +118,4 @@ UI & Navigation Testing
 - Firebase Firestore – database for storing users and posts
 - Firebase Storage – storing uploaded images
 - TypeScript / JavaScript – programming language
+
