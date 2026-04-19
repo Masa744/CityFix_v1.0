@@ -25,7 +25,7 @@ Overall, CityFix enhances civic engagement by giving users an easy way to report
 ## ⚙️ User Guide
 
 ### Installation
-```bash
+bash
 
 git clone https://github.com/TechWithMasa/CityFix_v1.0.git
 cd CityFix_v1.0
