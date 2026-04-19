@@ -31,45 +31,47 @@ cd CityFix_v1.0
 npm install
 npx expo start
 
-## **How to Use the App**
+## How to Use the App
 
-Users (Residents)
-Open the app using Expo Go or a simulator
-Create a new account or log in with existing credentials
-After login, you will be directed to the main feed
-Browse existing community reports (issues submitted by other users)
-Tap “Create Post” to report a new issue
-Fill in the required details:
-Title of the issue (e.g. “Broken streetlight”)
-Description (explain the problem clearly)
-Location (area/city information)
-Upload an image (optional but recommended for proof)
-Submit the post
-Your post will now appear in the community feed
+## Users (Residents)
+
+1. Open the app using Expo Go or a simulator
+2. Create a new account or log in with existing credentials
+3. After login, you will be directed to the main feed
+4. Browse existing community reports (issues submitted by other users)
+5. Tap “Create Post” to report a new issue
+6. Fill in the required details:
+- Title of the issue (e.g. “Broken streetlight”)
+- Description (explain the problem clearly)
+- Location (area/city information)
+- Upload an image (optional but recommended for proof)
+- Submit the post
+- Your post will now appear in the community feed
 You can:
-Like other users’ posts
-Comment on issues
-View status updates on your own posts
-Track your report status:
-Open → newly submitted
-In Progress → being reviewed/handled
-Resolved → issue has been fixed
+-Like other users’ posts
+-Comment on issues
+-View status updates on your own posts
+-Track your report status:
+-Open → newly submitted
+-In Progress → being reviewed/handled
+-Resolved → issue has been fixed
+
 🏛️ Admins (City Personnel)
-Log in using an admin account
-Open the Admin Dashboard (admin.tsx)
-View a list of all submitted community reports
-Tap on any report to view full details
-Review:
-Description of the issue
-Image evidence
-Location information
-User who submitted it
-Take action by updating the status:
-Open → new/unreviewed issue
-In Progress → issue is being worked on
-Resolved → issue has been completed
-Save changes to update the database
-Updates are automatically reflected in the user feed in real time
+1. Log in using an admin account
+2. Open the Admin Dashboard (admin.tsx)
+3. View a list of all submitted community reports
+4. Tap on any report to view full details
+5. Review:
+- Description of the issue
+- Image evidence
+- Location information
+- User who submitted it
+6. Take action by updating the status:
+- Open → new/unreviewed issue
+- In Progress → issue is being worked on
+- Resolved → issue has been completed
+7. Save changes to update the database
+8. Updates are automatically reflected in the user feed in real time
 
 Testing Strategy
 The application was tested using manual testing during development to ensure all features work correctly and data is properly handled between the frontend and Firebase backend.
@@ -79,27 +81,39 @@ Testing focused on verifying core functionality, user interactions, data storage
 🔍 Functional Testing
 The following features were tested to confirm they work as expected:
 
-User registration and login with valid credentials
-Error handling for invalid login attempts
-User logout functionality
-Creating new posts with title, description, location, and image
-Uploading images successfully to Firebase Storage
-Displaying posts correctly in the main feed
-Viewing detailed post information
-Liking and commenting on posts
-Admin access restrictions (only admin users can access dashboard)
-Admin ability to update post status (open → in progress → resolved)
-Real-time updates reflecting changes in Firestore
+• User registration and login with valid credentials
+• Error handling for invalid login attempts
+• User logout functionality
+• Creating new posts with title, description, location, and image
+• Uploading images successfully to Firebase Storage
+• Displaying posts correctly in the main feed
+• Viewing detailed post information
+• Liking and commenting on posts
+• Admin access restrictions (only admin users can access dashboard)
+• Admin ability to update post status (open → in progress → resolved)
+• Real-time updates reflecting changes in Firestore
+
 🧾 Input Validation Testing
-Verified that required fields (title, description) cannot be left empty
-Checked that posts are not submitted without proper user authentication
-Ensured image upload handles both valid and missing image cases
-🔄 Data Persistence Testing
-Confirmed that posts remain saved after closing and reopening the app
-Verified that Firestore correctly stores and retrieves user and post data
-Ensured admin updates to post status persist correctly in the database
-🛠️ UI & Navigation Testing
-Checked navigation flow between all screens using Expo Router
-Ensured buttons, forms, and inputs function correctly
-Verified app layout consistency across different screens
-Tested usability on different screen sizes to ensure responsiveness
+• Verified that required fields (title, description) cannot be left empty
+• Checked that posts are not submitted without proper user authentication
+• Ensured image upload handles both valid and missing image cases
+
+  Data Persistence Testing
+• Confirmed that posts remain saved after closing and reopening the app
+• Verified that Firestore correctly stores and retrieves user and post data
+• Ensured admin updates to post status persist correctly in the database
+
+UI & Navigation Testing
+• Checked navigation flow between all screens using Expo Router
+• Ensured buttons, forms, and inputs function correctly
+• Verified app layout consistency across different screens
+• Tested usability on different screen sizes to ensure responsiveness
+
+## 🧰 Technology Stack
+
+- React Native (Expo) – mobile app framework
+- Expo Router – navigation between screens
+- Firebase Authentication – user login and registration
+- Firebase Firestore – database for storing users and posts
+- Firebase Storage – storing uploaded images
+- TypeScript / JavaScript – programming language
