@@ -42,11 +42,15 @@ Stores all community issue reports.
 
 ## 📌 Sample User Document
 
+```json
 {
-"uid": "user123", "name": "John Doe","email": "john@example.com",
+"uid": "user123",
+"name": "John Doe",
+"email": "john@example.com",
 "role": "user",
 "createdAt": "2026-01-01"
 }
+```
 
 ---
 
@@ -73,7 +77,3 @@ Stores all community issue reports.
 "status": "open",
 "createdAt": "2026-01-01"
 
-{
-"uid": "user123",
-"name": "John Doe",
-}
