@@ -1,79 +1,105 @@
 # CityFix_v1.0
 
-## 📌 Project Overview
+## 📌 App Overview
+CityFix is a community-driven issue reporting platform designed to improve communication between residents and local city departments. The application allows users to report and document public infrastructure problems such as potholes, broken streetlights, graffiti, and safety hazards by submitting detailed posts with images, descriptions, and location information.
 
-CityFix is a community reporting application that allows users to submit and track local issues such as potholes, safety hazards, and infrastructure problems. Reports are shared with authorized city or township personnel who manage and resolve them efficiently.
+The main goal of CityFix is to create a faster and more efficient system for identifying and resolving community issues. Instead of relying on slow or informal reporting methods, users can instantly submit issues that are visible to both the community and authorized city personnel.
 
-The goal of CityFix is to improve communication between residents and local government services and create a faster response system for community issue management.
+City administrators (admins) can review submitted reports, track their progress, and update their status (open, in progress, resolved). This creates a structured workflow between citizens and city management, improving accountability and response time.
+
+Overall, CityFix enhances civic engagement by giving users an easy way to report problems and helping city officials manage and prioritize infrastructure issues more effectively.
 
 ---
 
 ## 🚀 Key Features
-
 - User authentication (sign up / login)
-- Create posts with images and location data
+- Create and submit issue reports with images and location
+- View community feed of reported issues
 - Like and comment on posts
-- Real-time feed of community reports
-- Role-based access for city personnel
-- Issue status tracking (pending, in progress, resolved)
-- Location-based filtering (city/area/county)
+- Admin dashboard for managing reports
+- Status tracking (open, in progress, resolved)
+- Role-based access (users vs admins)
 
 ---
 
-## 🧰 Tech Stack
+## ⚙️ User Guide
 
-- React Native (Expo)
-- Expo Router
-- Firebase Authentication
-- Firebase Firestore
-- Firebase Storage
-- TypeScript / JavaScript
-
----
-
-## ⚙️ Setup & Installation
-
-Clone the repository:
-
+### Installation
+```bash
 git clone https://github.com/TechWithMasa/CityFix_v1.0.git
 cd CityFix_v1.0
-
-Install dependencies:
-
 npm install
-
-Run the project:
-
 npx expo start
 
----
+## **How to Use the App**
 
-## 🧪 Testing
+Users (Residents)
+Open the app using Expo Go or a simulator
+Create a new account or log in with existing credentials
+After login, you will be directed to the main feed
+Browse existing community reports (issues submitted by other users)
+Tap “Create Post” to report a new issue
+Fill in the required details:
+Title of the issue (e.g. “Broken streetlight”)
+Description (explain the problem clearly)
+Location (area/city information)
+Upload an image (optional but recommended for proof)
+Submit the post
+Your post will now appear in the community feed
+You can:
+Like other users’ posts
+Comment on issues
+View status updates on your own posts
+Track your report status:
+Open → newly submitted
+In Progress → being reviewed/handled
+Resolved → issue has been fixed
+🏛️ Admins (City Personnel)
+Log in using an admin account
+Open the Admin Dashboard (admin.tsx)
+View a list of all submitted community reports
+Tap on any report to view full details
+Review:
+Description of the issue
+Image evidence
+Location information
+User who submitted it
+Take action by updating the status:
+Open → new/unreviewed issue
+In Progress → issue is being worked on
+Resolved → issue has been completed
+Save changes to update the database
+Updates are automatically reflected in the user feed in real time
 
-The application was tested manually to ensure core functionality works correctly:
+Testing Strategy
+The application was tested using manual testing during development to ensure all features work correctly and data is properly handled between the frontend and Firebase backend.
 
-- User authentication works correctly
-- Posts can be created, displayed, and deleted
-- Likes and comments update in real-time
-- Admin/city personnel can view and manage posts
-- Data persists correctly in Firestore after refresh
+Testing focused on verifying core functionality, user interactions, data storage, and role-based access for both users and admin accounts.
 
----
+🔍 Functional Testing
+The following features were tested to confirm they work as expected:
 
-## 🔮 Future Improvements
-
-- Push notifications for new posts based on location
-- Map integration for visual issue tracking
-- Role-based alerts for city personnel
-- Improved analytics dashboard
-- AI-based categorization of reported issues
-
----
-
-## 👥 Contributors
-
-- **Masa Otovcevic** – Team Lead, Backend Development, Firebase integration, system architecture
-- **Adrian** – Lead Frontend Developer (React Native), UI/UX design (Figma)
-- **Abel** – Frontend Developer (React Native), UI/UX design (Figma)
-- **Ayan** – Backend Developer, database structure and Firestore management
-- **Josiah** – Frontend Developer (React Native)
+User registration and login with valid credentials
+Error handling for invalid login attempts
+User logout functionality
+Creating new posts with title, description, location, and image
+Uploading images successfully to Firebase Storage
+Displaying posts correctly in the main feed
+Viewing detailed post information
+Liking and commenting on posts
+Admin access restrictions (only admin users can access dashboard)
+Admin ability to update post status (open → in progress → resolved)
+Real-time updates reflecting changes in Firestore
+🧾 Input Validation Testing
+Verified that required fields (title, description) cannot be left empty
+Checked that posts are not submitted without proper user authentication
+Ensured image upload handles both valid and missing image cases
+🔄 Data Persistence Testing
+Confirmed that posts remain saved after closing and reopening the app
+Verified that Firestore correctly stores and retrieves user and post data
+Ensured admin updates to post status persist correctly in the database
+🛠️ UI & Navigation Testing
+Checked navigation flow between all screens using Expo Router
+Ensured buttons, forms, and inputs function correctly
+Verified app layout consistency across different screens
+Tested usability on different screen sizes to ensure responsiveness
