@@ -43,10 +43,7 @@ Stores all community issue reports.
 ## 📌 Sample User Document
 
 {
-"uid": 
-"user123",
-"name": "John Doe",
-"email": "john@example.com",
+"uid": "user123", "name": "John Doe","email": "john@example.com",
 "role": "user",
 "createdAt": "2026-01-01"
 }
@@ -71,6 +68,8 @@ Stores all community issue reports.
 "text": "I saw this too"
 }
 ],
+
+
 "status": "open",
 "createdAt": "2026-01-01"
 }
