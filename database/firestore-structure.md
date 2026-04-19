@@ -72,4 +72,8 @@ Stores all community issue reports.
 
 "status": "open",
 "createdAt": "2026-01-01"
+
+{
+"uid": "user123",
+"name": "John Doe",
 }
