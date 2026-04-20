@@ -119,3 +119,4 @@ UI & Navigation Testing
 - Firebase Storage – storing uploaded images
 - TypeScript / JavaScript – programming language
 
+## APIs and Third-Party Packages Used
