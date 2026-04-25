@@ -120,3 +120,49 @@ UI & Navigation Testing
 - TypeScript / JavaScript – programming language
 
 ## APIs and Third-Party Packages Used
+Backend / Database
+Firebase
+Firestore Database (data storage for posts, users, notifications)
+Firebase Authentication (user login & auth management)
+• Frontend Framework
+- React Native
+- Expo Router (file-based navigation system)
+  Third-Party Packages
+• expo-image-picker
+- Used for selecting images from the device gallery when creating posts.
+• Firebase
+- Core SDK for authentication, Firestore database, and real-time updates.
+• expo-router
+- Handles navigation between screens (Home, Profile, Create Post, Notifications, etc.).
+• Core Features Powered By APIs
+- Real-time posts and updates using Firestore listeners
+- Location-based notifications using Firestore queries
+- User profile storage and syncing via Firebase Firestore
+- Image upload/selection via Expo Image Picker
+
+ ## List of Contributors and Each Member's Role
+• Masa: Group Leader and Backend 
+- Led overall project planning, coordination, and task distribution across the team
+- Designed and implemented core backend architecture using Firebase
+- Managed Firestore database structure (users, posts, notifications, and roles)
+
+• Adrian: Lead frontend (React Native) and Figma Design
+- Led frontend development using React Native (Expo)
+- Designed app wireframes and UI prototypes using Figma
+- Built major screens including Home, Profile, Notifications, and Create Post
+- Implemented navigation flow using Expo Router
+
+• Abel: Frontend (React Native) and Figma Design
+- Contributed to frontend development in React Native
+- Assisted in building and styling key screens and reusable components
+- Worked on UI consistency and layout improvements across the app
+
+• Ayan: Backend and Database Management
+- Assisted in backend development using Firebase Firestore
+- Structured and optimized database collections for scalability
+- Managed user data, posts, and notification logic
+
+• Josiah: Frontend
+- Contributed to frontend development using React Native
+- Built and styled UI components for various app screens
+- Assisted in implementing navigation and screen transitions
