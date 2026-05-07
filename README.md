@@ -12,13 +12,16 @@ Overall, CityFix enhances civic engagement by giving users an easy way to report
 ---
 
 ## 🚀 Key Features
-- User authentication (sign up / login)
-- Create and submit issue reports with images and location
-- View community feed of reported issues
-- Like and comment on posts
-- Admin dashboard for managing reports
-- Status tracking (open, in progress, resolved)
-- Role-based access (users vs admins)
+- User authentication allows residents and admins to sign up and log in securely.
+- Residents can create and submit issue reports with images and location details.
+- Residents can enter a location manually or select it on a map.
+- Both residents and admins can view a community feed of reported issues.
+- Residents can like and comment on posts.
+- Admins can manage and review all submitted reports using a dashboard.
+- Status tracking shows whether an issue is open, in progress, or resolved.
+- Role-based access controls what residents and admins can do in the system.
+- Residents receive notifications for new issues in their area and updates on their reports.
+- Admins receive notifications when new reports are submitted in their assigned area.
 
 ---
 
@@ -36,18 +39,17 @@ npx expo start
 
 ## Users (Residents)
 
-1. Open the app using Expo Go or a simulator
-2. Create a new account or log in with existing credentials
-3. After login, you will be directed to the main feed
-4. Browse existing community reports (issues submitted by other users)
-5. Tap “Create Post” to report a new issue
-6. Fill in the required details:
-- Title of the issue (e.g. “Broken streetlight”)
-- Description (explain the problem clearly)
-- Location (area/city information)
-- Upload an image (optional but recommended for proof)
-- Submit the post
-- Your post will now appear in the community feed
+1.Open the app using the provided installation method or simulator.
+2. Create a new account or log in with existing credentials.
+3. After login, you will be directed to the main feed.
+4. Browse existing community reports submitted by other users.
+5. Tap “Create Post” to report a new issue.
+6. Enter the issue title, description, location, and upload an image.
+7. Submit the report to publish it to the community feed.
+8. View your submitted post in the feed after posting.
+9. Like and comment on other users’ posts.
+10. View updates on your submitted reports.
+11. Track report status as Open, In Progress, or Resolved.
 You can:
 -Like other users’ posts
 -Comment on issues
@@ -59,7 +61,7 @@ You can:
 
 🏛️ Admins (City Personnel)
 1. Log in using an admin account
-2. Open the Admin Dashboard (admin.tsx)
+2. Open the Admin Dashboard
 3. View a list of all submitted community reports
 4. Tap on any report to view full details
 5. Review:
