@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+mport { useEffect, useState } from "react";
 import {
 View,
 Text,
@@ -10,8 +10,7 @@ TextInput,
 Alert,
 } from "react-native";
 
-import { router } from "expo-router";
-
+import { router, useLocalSearchParams } from "expo-router";
 import { db, auth } from "../lib/firebase";
 
 import {
@@ -35,28 +34,43 @@ const user = auth.currentUser;
 const [posts, setPosts] = useState<any[]>([]);
 const [commentText, setCommentText] = useState<any>({});
 const [name, setName] = useState("");
+const [userCity, setUserCity] = useState("");
 
-const [cityFilter, setCityFilter] = useState("");
-const [areaFilter, setAreaFilter] = useState("");
-const [countyFilter, setCountyFilter] = useState("");
+// FILTER PARAMS
+const params = useLocalSearchParams();
 
-// GET USER NAME
+const filterCity = (params.city as string) || "";
+const filterArea = (params.area as string) || "";
+const filterCounty = (params.county as string) || "";
+
+// =====================
+// LOAD USER
+// =====================
 useEffect(() => {
-const fetchName = async () => {
+const fetchUserData = async () => {
 if (!user) return;
 
-const ref = doc(db, "users", user.uid);
-const snap = await getDoc(ref);
+const snap = await getDoc(doc(db, "users", user.uid));
 
 if (snap.exists()) {
-setName(snap.data().name);
+const data = snap.data();
+
+setName(data.name || "");
+
+setUserCity(
+(data.location?.city || data.city || "")
+.toLowerCase()
+.trim()
+);
 }
 };
 
-fetchName();
+fetchUserData();
 }, []);
 
-// REAL-TIME POSTS
+// =====================
+// LOAD POSTS
+// =====================
 useEffect(() => {
 const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 
@@ -72,12 +86,13 @@ setPosts(data);
 return () => unsubscribe();
 }, []);
 
+// =====================
 // LIKE
-const toggleLike = async (postId: string, likes: any = []) => {
+// =====================
+const toggleLike = async (postId: string, likes: string[] = []) => {
 const postRef = doc(db, "posts", postId);
 
 const safeLikes = Array.isArray(likes) ? likes : [];
-
 const hasLiked = safeLikes.includes(user?.email || "");
 
 await updateDoc(postRef, {
@@ -87,7 +102,9 @@ likes: hasLiked
 });
 };
 
+// =====================
 // COMMENT
+// =====================
 const addComment = async (postId: string) => {
 const text = commentText[postId];
 if (!text) return;
@@ -101,10 +118,15 @@ text,
 }),
 });
 
-setCommentText((prev: any) => ({ ...prev, [postId]: "" }));
+setCommentText((prev: any) => ({
+...prev,
+[postId]: "",
+}));
 };
 
-// DELETE POST
+// =====================
+// DELETE
+// =====================
 const deletePost = async (postId: string) => {
 Alert.alert("Delete Post?", "This cannot be undone.", [
 { text: "Cancel", style: "cancel" },
@@ -118,53 +140,76 @@ await deleteDoc(doc(db, "posts", postId));
 ]);
 };
 
-// FILTER (kept for future use)
-const visiblePosts = posts.filter(
-(post) => post.status !== "archived"
-);
+// =====================
+// 🔥 FIXED FILTER LOGIC (REAL WORKING VERSION)
+// =====================
+const visiblePosts = posts.filter((post) => {
+if (post.status === "archived") return false;
+
+const postCity = (post.location?.city || "").toLowerCase().trim();
+const postArea = (post.location?.area || "").toLowerCase().trim();
+const postCounty = (post.location?.county || "").toLowerCase().trim();
+
+const userCityClean = (userCity || "").toLowerCase().trim();
+
+const filterCityClean = (filterCity || "").toLowerCase().trim();
+const filterAreaClean = (filterArea || "").toLowerCase().trim();
+const filterCountyClean = (filterCounty || "").toLowerCase().trim();
+
+const isOwner = post.userId === user?.uid;
+
+/**
+* STEP 1: if NO filter → normal city feed
+*/
+const hasFilter =
+filterCityClean || filterAreaClean || filterCountyClean;
+
+if (!hasFilter) {
+return isOwner || postCity === userCityClean;
+}
+
+/**
+* STEP 2: filter mode overrides city restriction
+*/
+const matchesFilter =
+(!filterCityClean || postCity === filterCityClean) &&
+(!filterAreaClean || postArea === filterAreaClean) &&
+(!filterCountyClean || postCounty === filterCountyClean);
+
+return isOwner || matchesFilter;
+});
 
 return (
 <View style={styles.container}>
 
-{/* HEADER */}
-<View style={{ flex: 1 }}>
 <Text style={styles.title}>
 Welcome {name || user?.email || "User"}
 </Text>
 
 <Pressable
-style={styles.button}
+style={styles.createBtn}
 onPress={() => router.push("/create-post")}
 >
-<Text style={styles.buttonText}>Create Post</Text>
+<Text style={styles.buttonText}>＋ Create Post</Text>
 </Pressable>
 
-<Pressable
-style={styles.button}
-onPress={() => router.push("/profile")}
->
-<Text style={styles.buttonText}>Profile</Text>
-</Pressable>
-
-<Pressable
-style={styles.button}
-onPress={() => router.push("/filter")}
->
-<Text style={styles.buttonText}>Filter Posts</Text>
-</Pressable>
-
-{/* POSTS */}
 <FlatList
 data={visiblePosts}
 keyExtractor={(item) => item.id}
+contentContainerStyle={{ paddingBottom: 200 }}
 renderItem={({ item }) => (
 <View style={styles.post}>
+
+<Text style={styles.postUser}>
+Posted by {item.userName}
+</Text>
+
 <Text style={styles.postTitle}>{item.title}</Text>
 <Text>{item.description}</Text>
 
 <Text style={styles.location}>
-{item.location?.street || ""} {item.location?.area || ""},{" "}
-{item.location?.city || ""}, {item.location?.county || ""}
+{item.location?.street} {item.location?.area},{" "}
+{item.location?.city}, {item.location?.county}
 </Text>
 
 {item.image && (
@@ -173,35 +218,25 @@ renderItem={({ item }) => (
 
 <Pressable onPress={() => toggleLike(item.id, item.likes || [])}>
 <Text style={styles.like}>
-❤️ {Array.isArray(item.likes) ? item.likes.length : 0} Likes
+❤️ {item.likes?.length || 0} Likes
 </Text>
 </Pressable>
 
-<Text style={{ marginTop: 5, color: "gray", fontWeight: "bold" }}>
+<Text style={{ marginTop: 5, color: "gray" }}>
 Status: {item.status || "open"}
 </Text>
 
-{/* DELETE */}
 {item.userId === user?.uid && (
 <Pressable
 onPress={() => deletePost(item.id)}
-style={{
-backgroundColor: "red",
-padding: 6,
-borderRadius: 6,
-marginTop: 8,
-alignItems: "center",
-}}
+style={styles.deleteBtn}
 >
-<Text style={{ color: "white", fontWeight: "bold" }}>
-Delete Post
-</Text>
+<Text style={{ color: "white" }}>Delete Post</Text>
 </Pressable>
 )}
 
-{/* COMMENTS */}
 {(item.comments || []).map((c: any, i: number) => (
-<Text key={i} style={styles.comment}>
+<Text key={i}>
 {c.user}: {c.text}
 </Text>
 ))}
@@ -218,65 +253,72 @@ setCommentText((prev: any) => ({
 style={styles.input}
 />
 
-<Pressable
-style={styles.commentButton}
-onPress={() => addComment(item.id)}
->
-<Text style={styles.buttonText}>Post Comment</Text>
+<Pressable onPress={() => addComment(item.id)}>
+<Text>Post Comment</Text>
 </Pressable>
+
 </View>
 )}
 />
-</View>
 
-{/* 🔴 LOGOUT (THINNER) */}
+{/* NAV */}
+<View style={styles.bottomNav}>
+
+<Pressable onPress={() => router.push("/filter")}>
+<Text style={styles.navText}>🔍 Filter</Text>
+</Pressable>
+
+<Pressable onPress={() => router.push("/notifications")}>
+<Text style={styles.navText}>🔔 Alerts</Text>
+</Pressable>
+
+<Pressable onPress={() => router.push("/profile")}>
+<Text style={styles.navText}>👤 Profile</Text>
+</Pressable>
+
 <Pressable
-style={styles.logoutButton}
 onPress={async () => {
 await signOut(auth);
 router.replace("/login");
 }}
 >
-<Text style={styles.buttonText}>Logout</Text>
+<Text style={styles.navText}>🚪 Logout</Text>
 </Pressable>
+
+</View>
 
 </View>
 );
 }
 
+// =====================
+// STYLES
+// =====================
 const styles = StyleSheet.create({
 container: {
 flex: 1,
 padding: 20,
-backgroundColor: "#f5f5f5",
+backgroundColor: "#d1d5db",
 },
 
 title: {
 fontSize: 22,
 fontWeight: "bold",
-marginBottom: 15,
+marginBottom: 10,
 },
 
-button: {
-backgroundColor: "#2e86de",
+createBtn: {
+backgroundColor: "#2563eb",
 padding: 12,
-borderRadius: 10,
+borderRadius: 12,
+marginBottom: 12,
 alignItems: "center",
-marginBottom: 10,
-},
-
-logoutButton: {
-backgroundColor: "red",
-paddingVertical: 8,
-paddingHorizontal: 12,
-borderRadius: 10,
-alignItems: "center",
-marginBottom: 10,
 },
 
 buttonText: {
 color: "white",
 fontWeight: "bold",
+fontSize: 16,
 },
 
 post: {
@@ -284,6 +326,12 @@ backgroundColor: "white",
 padding: 12,
 borderRadius: 10,
 marginTop: 10,
+},
+
+postUser: {
+fontSize: 13,
+color: "gray",
+marginBottom: 5,
 },
 
 postTitle: {
@@ -308,24 +356,38 @@ marginTop: 10,
 fontWeight: "bold",
 },
 
-comment: {
-fontSize: 13,
-marginTop: 3,
-},
-
 input: {
 backgroundColor: "#eee",
 padding: 8,
 borderRadius: 8,
-marginTop: 8,
+marginTop: 5,
 },
 
-commentButton: {
-backgroundColor: "#00b894",
-padding: 8,
-borderRadius: 8,
-marginTop: 5,
+deleteBtn: {
+backgroundColor: "red",
+padding: 6,
+borderRadius: 6,
+marginTop: 8,
 alignItems: "center",
 },
+
+bottomNav: {
+position: "absolute",
+bottom: 50,
+left: 0,
+right: 0,
+flexDirection: "row",
+justifyContent: "space-around",
+backgroundColor: "#0b1220",
+padding: 12,
+borderRadius: 12,
+},
+
+navText: {
+color: "#60a5fa",
+fontWeight: "bold",
+},
 });
+
+
 
