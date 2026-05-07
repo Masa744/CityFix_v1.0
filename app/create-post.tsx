@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 View,
 Text,
@@ -7,15 +7,25 @@ Pressable,
 Alert,
 StyleSheet,
 Image,
+ScrollView,
+SafeAreaView,
 } from "react-native";
 
 import * as ImagePicker from "expo-image-picker";
 
 import { db, auth } from "../lib/firebase";
-import { collection, addDoc } from "firebase/firestore";
-import { router } from "expo-router";
+import {
+collection,
+addDoc,
+doc,
+getDoc,
+getDocs,
+} from "firebase/firestore";
+
+import { router, useLocalSearchParams } from "expo-router";
 
 export default function CreatePost() {
+
 const [title, setTitle] = useState("");
 const [description, setDescription] = useState("");
 
@@ -26,164 +36,232 @@ const [county, setCounty] = useState("");
 
 const [image, setImage] = useState<string | null>(null);
 
-// 📸 PICK IMAGE
+// 📍 LOCATION STATE
+const [location, setLocation] = useState<any>(null);
+
+// GET MAP PARAMS
+const params = useLocalSearchParams();
+
+// RECEIVE MAP DATA
+useEffect(() => {
+if (!params.latitude || !params.longitude) return;
+
+setLocation({
+latitude: Number(params.latitude),
+longitude: Number(params.longitude),
+
+street: (params.street as string) || "",
+area: (params.area as string) || "",
+city: (params.city as string) || "",
+county: (params.county as string) || "",
+});
+}, [params.latitude, params.longitude]);
+
+// 📸 IMAGE PICKER
 const pickImage = async () => {
-const permission =
-await ImagePicker.requestMediaLibraryPermissionsAsync();
+const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
 if (!permission.granted) {
-Alert.alert("Permission required", "Allow access to photos");
+Alert.alert("Permission required");
 return;
 }
 
 const result = await ImagePicker.launchImageLibraryAsync({
 mediaTypes: ImagePicker.MediaTypeOptions.Images,
-allowsEditing: true,
-quality: 1,
+allowsEditing: false,
+quality: 0.8,
+selectionLimit: 1,
 });
 
-if (!result.canceled) {
+if (!result.canceled && result.assets.length > 0) {
 setImage(result.assets[0].uri);
 }
 };
 
-// 🚀 SUBMIT POST
+// 🚀 CREATE POST + NOTIFICATIONS FIX
 const handlePost = async () => {
 try {
 const user = auth.currentUser;
 
 if (!user) {
-Alert.alert("Error", "You must be logged in");
+Alert.alert("Error", "Not logged in");
 return;
 }
 
-if (
-!title.trim() ||
-!description.trim() ||
-!area.trim() ||
-!city.trim() ||
-!county.trim()
-) {
-Alert.alert("Error", "Please fill all required fields");
-return;
+const userSnap = await getDoc(doc(db, "users", user.uid));
+
+let userName = user.email;
+
+if (userSnap.exists()) {
+const data = userSnap.data();
+if (data?.name) userName = data.name;
 }
 
-const postData = {
+// STEP 1: CREATE POST
+const postRef = await addDoc(collection(db, "posts"), {
 title: title.trim(),
 description: description.trim(),
 
 location: {
-street: street.trim(),
-area: area.trim(),
-city: city.trim(),
-county: county.trim(),
+street: (location?.street || street).trim().toLowerCase(),
+area: (location?.area || area).trim().toLowerCase(),
+city: (location?.city || city).trim().toLowerCase(),
+county: (location?.county || county).trim().toLowerCase(),
+
+latitude: location?.latitude || null,
+longitude: location?.longitude || null,
 },
 
-image: image || null, // ✅ IMAGE ADDED HERE
+image: image || null,
 
 createdAt: new Date(),
 
 userId: user.uid,
-userName: user.displayName || user.email,
+userName,
 
-likes: {},
+likes: [],
 comments: [],
+status: "open",
+});
 
-status: "open", // 🔥 IMPORTANT ADDITION
-};
+// STEP 2: SEND NOTIFICATIONS (CITY MATCH ONLY)
+const usersSnap = await getDocs(collection(db, "users"));
 
-await addDoc(collection(db, "posts"), postData);
+usersSnap.forEach(async (u) => {
+const userData = u.data();
 
-Alert.alert("Success", "Post created!", [
-{
-text: "OK",
-onPress: () => router.replace("/home"),
-},
-]);
+const userCity = (userData.city || "").toLowerCase();
+const postCity = (city || "").toLowerCase();
+
+if (userCity && postCity && userCity === postCity && u.id !== user.uid) {
+await addDoc(collection(db, "users", u.id, "notifications"), {
+title: "New post in your area",
+body: title,
+postId: postRef.id,
+read: false,
+createdAt: new Date(),
+});
+}
+});
+
+Alert.alert("Success", "Post created!");
+router.replace("/home");
+
 } catch (error: any) {
-console.log("POST ERROR:", error);
 Alert.alert("Error", error.message);
 }
 };
 
 return (
-<View style={styles.container}>
+<SafeAreaView style={styles.container}>
+
+<ScrollView contentContainerStyle={styles.form}>
+
+<Pressable onPress={() => router.back()} style={{ marginBottom: 10 }}>
+<Text style={{ color: "#2e86de", fontWeight: "bold" }}>
+← Go Back
+</Text>
+</Pressable>
+
 <Text style={styles.title}>Create Post</Text>
 
 <TextInput placeholder="Title" value={title} onChangeText={setTitle} style={styles.input} />
 <TextInput placeholder="Description" value={description} onChangeText={setDescription} style={styles.input} />
-
-<TextInput placeholder="Street (optional)" value={street} onChangeText={setStreet} style={styles.input} />
+<TextInput placeholder="Street" value={street} onChangeText={setStreet} style={styles.input} />
 <TextInput placeholder="Area" value={area} onChangeText={setArea} style={styles.input} />
 <TextInput placeholder="City" value={city} onChangeText={setCity} style={styles.input} />
 <TextInput placeholder="County" value={county} onChangeText={setCounty} style={styles.input} />
 
-{/* 📸 IMAGE PREVIEW */}
-{image && (
-<Image source={{ uri: image }} style={styles.imagePreview} />
+<Pressable
+style={styles.mapButton}
+onPress={() => router.push("/map-picker")}
+>
+<Text style={{ color: "white" }}>📍 Select Location on Map</Text>
+</Pressable>
+
+{location && (
+<Text style={{ color: "green", marginBottom: 10 }}>
+📍 {location.street || location.city || "Location selected"}
+</Text>
 )}
 
-{/* 📸 BUTTON TO PICK IMAGE */}
-<Pressable style={styles.imageButton} onPress={pickImage}>
-<Text style={styles.buttonText}>Add Photo</Text>
+{image && (
+<Image source={{ uri: image }} style={styles.image} />
+)}
+
+</ScrollView>
+
+<View style={styles.buttonContainer}>
+
+<Pressable style={styles.button} onPress={pickImage}>
+<Text style={{ color: "white" }}>Add Photo</Text>
 </Pressable>
 
-{/* 🚀 SUBMIT */}
 <Pressable style={styles.button} onPress={handlePost}>
-<Text style={styles.buttonText}>Submit Post</Text>
+<Text style={{ color: "white" }}>Submit Post</Text>
 </Pressable>
+
 </View>
+
+</SafeAreaView>
 );
 }
 
 const styles = StyleSheet.create({
+
 container: {
 flex: 1,
+backgroundColor: "white",
+},
+
+form: {
 padding: 20,
-justifyContent: "center",
-backgroundColor: "#f5f5f5",
+paddingBottom: 140,
 },
 
 title: {
 fontSize: 22,
 fontWeight: "bold",
 marginBottom: 20,
-textAlign: "center",
 },
 
 input: {
 borderWidth: 1,
-borderColor: "#ccc",
 padding: 10,
-borderRadius: 8,
 marginBottom: 10,
-backgroundColor: "white",
+borderRadius: 8,
 },
 
-imageButton: {
-backgroundColor: "#6c5ce7",
-padding: 10,
+image: {
+width: "70%",
+height: 100,
+marginTop: 10,
 borderRadius: 10,
-alignItems: "center",
-marginBottom: 10,
+},
+
+buttonContainer: {
+position: "absolute",
+bottom: 30,
+left: 20,
+right: 20,
 },
 
 button: {
 backgroundColor: "#2e86de",
 padding: 12,
-borderRadius: 10,
+marginTop: 10,
 alignItems: "center",
+borderRadius: 8,
 },
 
-buttonText: {
-color: "white",
-fontWeight: "bold",
-},
-
-imagePreview: {
-width: "100%",
-height: 200,
-borderRadius: 10,
-marginBottom: 10,
+mapButton: {
+backgroundColor: "#16a34a",
+padding: 12,
+marginTop: 10,
+alignItems: "center",
+borderRadius: 8,
 },
 });
+
+
+
